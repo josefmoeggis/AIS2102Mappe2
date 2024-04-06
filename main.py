@@ -29,7 +29,7 @@ qube.resetMotorEncoder()
 qube.resetPendulumEncoder()
 
 # Enables logging - comment out to remove
-enableLogging()
+#enableLogging()
 
 t_last = time()
 
@@ -37,7 +37,7 @@ t_last = time()
 m_target = 0
 p_target = 0
 
-target = 2000
+target = np.deg2rad(360)
 pid = PID()
 def control(data, lock):
     global m_target, p_target, target, pid

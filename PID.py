@@ -4,9 +4,9 @@ from time import time
 
 class PID:
     def __init__(self): 
-        self.kp = 0.5 #Vinkelregulering
-        self.ki = 0.5
-        self.kd =  0.3
+        self.kp = 0.4 #Vinkelregulering
+        self.ki = 6
+        self.kd =  1.5
         self.windup = 0
         self.winduptime = 0
         self.accWindup = []
@@ -18,7 +18,7 @@ class PID:
 
     def checkWindup(self):
         for i in self.accWindup:
-            if self.accWindup[i] * 0.95 > self.windup or self.accWindup[i] * 1.05 < self.windup:
+            if self.accWindup[i] * 0.98 > self.windup or self.accWindup[i] * 1.02 < self.windup: # Reset windup if prev windup between these vals
                 break
             else:
                 self.accWindup = []
@@ -29,6 +29,7 @@ class PID:
 
     def regulate(self, target, currentVal, dt):
         # Implement controller using this function
+        print("Angle:", currentVal)
         error = target - currentVal # Proportional Calculation
 
         derivative = dt * (self.lastVal - error) # Derivative calculation
