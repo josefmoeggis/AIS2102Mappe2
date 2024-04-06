@@ -4,8 +4,8 @@ from time import time
 
 class PID:
     def __init__(self): 
-        self.kp = 0.035  #0.5 Vinkelregulering
-        self.ki = 0.4  #0.5
+        self.kp = 0.03  #0.5 Vinkelregulering
+        self.ki = 0.6  #0.5
         self.kd = 0.5  #0.3
         self.windup = 0
         self.winduptime = 0
@@ -47,6 +47,9 @@ class PID:
         pid = self.kp * error + self.ki * self.windup + self.kp * derivative
 
         return pid
+
+    def getError(self):
+        return self.lastVal
 
     def copy(self, pid):
         self.kp = pid.kp

@@ -36,18 +36,19 @@ t_last = time()
 
 m_target = 0
 p_target = 0
+error = 0
 
 target = 2000
 pid = PID()
 def control(data, lock):
-    global m_target, p_target, target, pid
+    global m_target, p_target, target, pid, error
     while True:
         # Updates the qube - Sends and receives data
         qube.update()
 
         # Gets the logdata and writes it to the log file
         logdata = qube.getLogData(m_target, p_target)
-        save_data(logdata)
+        save_data(logdata, error)
 
         # Multithreading stuff that must happen. Dont mind it.
         with lock:
@@ -59,6 +60,7 @@ def control(data, lock):
         ### Your code goes here
         setVoltage = pid.regulate(target, qube.getMotorRPM(), dt)
         clippedVoltage = np.clip(setVoltage, -25, 25)
+        error = pid.getError()
         #print("RPM:", qube.getMotorRPM())
         qube.setMotorVoltage(clippedVoltage)
 
