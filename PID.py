@@ -1,11 +1,12 @@
 import sys
+import numpy as np
 
 from time import time
 
 class PID:
     def __init__(self): 
-        self.kp = 0.4 #Vinkelregulering
-        self.ki = 6
+        self.kp = 0.3 #Vinkelregulering
+        self.ki = 0.5
         self.kd =  1.5
         self.windup = 0
         self.winduptime = 0
@@ -27,9 +28,9 @@ class PID:
     def resetWindup(self):
         self.windup = 0
 
-    def regulate(self, target, currentVal, dt):
+    def regulate(self, target, currentVal, dt, dummy):
         # Implement controller using this function
-        print("Angle:", currentVal)
+        print("Angle:", np.rad2deg(currentVal))
         error = target - currentVal # Proportional Calculation
 
         derivative = dt * (self.lastVal - error) # Derivative calculation
@@ -39,15 +40,19 @@ class PID:
             self.accWindup.pop(0)
 
         #PID.checkWindup(self)
+        
+        self.windup = error * dt# Integral calculation trapezoidal methode
 
-        self.windup =+ 10 # Integral calculation trapezoidal methode
+        dummy += self.windup
 
         self.lastVal = error
-        print("Windup:", self.windup)
         #print("Error:", error)
-        pid = self.kp * error + self.ki * self.windup + self.kp * derivative
+        pid = self.kp * error + self.ki * dummy + self.kp * derivative
 
-        return pid
+        return pid, dummy
+
+    def getIntegral(self):
+        return self.integral
 
     def copy(self, pid):
         self.kp = pid.kp

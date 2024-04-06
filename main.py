@@ -38,10 +38,12 @@ t_last = time()
 m_target = 0
 p_target = 0
 
+dummy = 0
+
 target = np.deg2rad(360)
 pid = PID.PID()
 def control(data, lock):
-    global m_target, p_target, target, pid
+    global m_target, p_target, target, pid, dummy
     while True:
         # Updates the qube - Sends and receives data
         qube.update()
@@ -58,9 +60,10 @@ def control(data, lock):
         dt = getDT()
         
         ### Your code goes here
-        setVoltage = pid.regulate(target, np.deg2rad(qube.getMotorAngle()), dt)
+        
+        setVoltage, dummy = pid.regulate(target, np.deg2rad(qube.getMotorAngle()), dt, dummy)
         clippedVoltage = np.clip(setVoltage, -25, 25)
-        #print("RPM:", qube.getMotorRPM())
+        #print("Windup", dummy)
         qube.setMotorVoltage(clippedVoltage)
 
 
