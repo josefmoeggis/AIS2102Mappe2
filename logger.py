@@ -13,13 +13,19 @@ fieldnames = [
     "rpm",
     "voltage",
     "current",
+    "error",
 ]
 
 files = 0
 directory = os.path.join(os.curdir, "Gen_Data")
 
+output_dir = 'CSV_sourcecodePos/OurData'
+filename = f'{output_dir}/saved_datapos.csv'
+
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 # Check if the directory exists
-if os.path.exists(directory) and os.path.isdir(directory):
+"""if os.path.exists(directory) and os.path.isdir(directory):
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)
 
@@ -31,6 +37,7 @@ else:
     print("The 'Gen_Data' directory does not exist.")
 
 filename = f"Gen_Data/log{files}.csv"
+"""
 
 counter = 0
 startTime = time.time()
@@ -45,7 +52,7 @@ def enableLogging():
     LOGGING = True
 
 
-def save_data(data):
+def save_data(data, error):
     if not LOGGING:
         return
     global counter
@@ -63,5 +70,6 @@ def save_data(data):
             "rpm": data[4],
             "voltage": data[5],
             "current": data[6],
+            "error" : error,
         }
         csv_writer.writerow(info)

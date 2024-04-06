@@ -30,7 +30,7 @@ qube.resetMotorEncoder()
 qube.resetPendulumEncoder()
 
 # Enables logging - comment out to remove
-#enableLogging()
+enableLogging()
 
 t_last = time()
 
@@ -39,18 +39,19 @@ m_target = 0
 p_target = 0
 
 dummy = 0
+error = 0
 
 target = np.deg2rad(360)
 pid = PID.PID()
 def control(data, lock):
-    global m_target, p_target, target, pid, dummy
+    global m_target, p_target, target, pid, dummy, error
     while True:
         # Updates the qube - Sends and receives data
         qube.update()
 
         # Gets the logdata and writes it to the log file
         logdata = qube.getLogData(m_target, p_target)
-        save_data(logdata)
+        save_data(logdata, error)
 
         # Multithreading stuff that must happen. Dont mind it.
         with lock:
@@ -63,6 +64,7 @@ def control(data, lock):
         
         setVoltage, dummy = pid.regulate(target, np.deg2rad(qube.getMotorAngle()), dt, dummy)
         clippedVoltage = np.clip(setVoltage, -25, 25)
+        error = pid.getError()
         #print("Windup", dummy)
         qube.setMotorVoltage(clippedVoltage)
 
