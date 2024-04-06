@@ -57,7 +57,7 @@ def control(data, lock):
         dt = getDT()
         
         ### Your code goes here
-        setVoltage = pid.regulate(target, qube.getMotorRPM(), dt)
+        setVoltage = pid.regulate(target, np.deg2rad(qube.getMotorAngle()), dt)
         clippedVoltage = np.clip(setVoltage, -25, 25)
         #print("RPM:", qube.getMotorRPM())
         qube.setMotorVoltage(clippedVoltage)
