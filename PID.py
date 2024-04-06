@@ -17,7 +17,7 @@ class PID:
         self.useWindup = False
 
     def checkWindup(self):
-        for i in self.accWindup:
+        for i in range(len(self.accWindup)):
             if self.accWindup[i] * 0.98 > self.windup or self.accWindup[i] * 1.02 < self.windup: # Reset windup if prev windup between these vals
                 break
             else:
@@ -40,7 +40,7 @@ class PID:
 
         #PID.checkWindup(self)
 
-        self.windup += error * dt # Integral calculation trapezoidal methode
+        self.windup =+ 10 # Integral calculation trapezoidal methode
 
         self.lastVal = error
         print("Windup:", self.windup)

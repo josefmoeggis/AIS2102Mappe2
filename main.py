@@ -18,6 +18,7 @@ from liveplot import *
 from time import time
 import threading
 import numpy as np
+import PID
 
 # Replace with the Arduino port. Can be found in the Arduino IDE (Tools -> Port:)
 port = "COM11"
@@ -38,7 +39,7 @@ m_target = 0
 p_target = 0
 
 target = np.deg2rad(360)
-pid = PID()
+pid = PID.PID()
 def control(data, lock):
     global m_target, p_target, target, pid
     while True:
