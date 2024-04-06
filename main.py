@@ -18,6 +18,7 @@ from liveplot import *
 from time import time
 import threading
 import numpy as np
+import PID
 
 # Replace with the Arduino port. Can be found in the Arduino IDE (Tools -> Port:)
 port = "COM11"
@@ -37,11 +38,12 @@ t_last = time()
 m_target = 0
 p_target = 0
 error = 0
+dummy = 0
 
 target = 2000
-pid = PID()
+pid = PID.PID()
 def control(data, lock):
-    global m_target, p_target, target, pid, error
+    global m_target, p_target, target, pid, error, dummy
     while True:
         # Updates the qube - Sends and receives data
         qube.update()
@@ -58,7 +60,7 @@ def control(data, lock):
         dt = getDT()
         
         ### Your code goes here
-        setVoltage = pid.regulate(target, qube.getMotorRPM(), dt)
+        setVoltage, dummy = pid.regulate(target, qube.getMotorRPM(), dt, dummy)
         clippedVoltage = np.clip(setVoltage, -25, 25)
         error = pid.getError()
         #print("RPM:", qube.getMotorRPM())

@@ -4,9 +4,9 @@ from time import time
 
 class PID:
     def __init__(self): 
-        self.kp = 0.03  #0.5 Vinkelregulering
-        self.ki = 0.6  #0.5
-        self.kd = 0.5  #0.3
+        self.kp = 0.02  #0.5 Vinkelregulering
+        self.ki = 0.02  #0.5
+        self.kd = 0.04  #0.3
         self.windup = 0
         self.winduptime = 0
         self.accWindup = []
@@ -27,7 +27,7 @@ class PID:
     def resetWindup(self):
         self.windup = 0
 
-    def regulate(self, target, currentVal, dt):
+    def regulate(self, target, currentVal, dt, dummy):
         # Implement controller using this function
         error = target - currentVal # Proportional Calculation
 
@@ -39,14 +39,15 @@ class PID:
 
         #PID.checkWindup(self)
 
-        self.windup += error * dt # Integral calculation trapezoidal methode
+        dummy += error * dt # Integral calculation trapezoidal methode
 
         self.lastVal = error
-        print("Windup:", self.windup)
+        print("Windup:", dummy)
         #print("Error:", error)
-        pid = self.kp * error + self.ki * self.windup + self.kp * derivative
+        #print("RPM:", currentVal)
+        pid = self.kp * error + self.ki * dummy + self.kp * derivative
 
-        return pid
+        return pid, dummy
 
     def getError(self):
         return self.lastVal
