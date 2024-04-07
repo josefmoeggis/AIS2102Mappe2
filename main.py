@@ -18,7 +18,7 @@ from liveplot import *
 from time import time
 import threading
 import numpy as np
-import PID
+import Control
 
 # Replace with the Arduino port. Can be found in the Arduino IDE (Tools -> Port:)
 port = "COM11"
@@ -30,7 +30,7 @@ qube.resetMotorEncoder()
 qube.resetPendulumEncoder()
 
 # Enables logging - comment out to remove
-enableLogging()
+#enableLogging()
 
 t_last = time()
 
@@ -42,9 +42,9 @@ dummy = 0
 error = 0
 
 target = np.deg2rad(360)
-pid = PID.PID()
+control = Control.Control()
 def control(data, lock):
-    global m_target, p_target, target, pid, dummy, error
+    global m_target, p_target, target, control, dummy, error
     while True:
         # Updates the qube - Sends and receives data
         qube.update()
@@ -62,9 +62,9 @@ def control(data, lock):
         
         ### Your code goes here
         
-        setVoltage, dummy = pid.regulate(target, np.deg2rad(qube.getMotorAngle()), dt, dummy)
+        setVoltage, dummy = control.regulate(target, np.deg2rad(qube.getMotorAngle()), dt, dummy)
         clippedVoltage = np.clip(setVoltage, -25, 25)
-        error = pid.getError()
+        error = control.getError()
         #print("Windup", dummy)
         qube.setMotorVoltage(clippedVoltage)
 
@@ -79,7 +79,7 @@ def getDT():
 
 def doMTStuff(data):
     packet = data[7]
-    pid.copy(packet.pid)
+    control.copy(packet.control)
     if packet.resetEncoders:
         qube.resetMotorEncoder()
         qube.resetPendulumEncoder()
