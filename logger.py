@@ -21,7 +21,7 @@ files = 0
 directory = os.path.join(os.curdir, "Gen_Data")
 
 output_dir = 'CSV_sourcecodePos/OurData'
-filename = f'{output_dir}/saved_dataposKmatrix.csv'
+filename = f'{output_dir}/saved_dataposObserver2.csv'
 
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)

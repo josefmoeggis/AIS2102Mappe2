@@ -41,8 +41,8 @@ class PID:
         c2 = 1
 
         # Observer gain values (design or tune these values)
-        l1 = -53 + 9j
-        l2 = -53 + 9j
+        l1 = -0.0063
+        l2 = -0.1347
 
         # Update the estimated state variables using the observer
         x_hat1 = self.x_hat1 + dt * (a11 * self.x_hat1 + a12 * self.x_hat2 + b1 * currentVal - l1 * (c1 * self.x_hat1 - currentVal))
@@ -55,7 +55,7 @@ class PID:
         error = x1 - x_hat1
 
         # Apply the K matrix
-        u = -((self.k1 * error - self.k2 * -x_hat2) / 650)
+        u = -(self.k1 * error + self.k2 * x_hat2)/550
 
         # Update the estimated state variables
         self.x_hat1 = x_hat1
