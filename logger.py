@@ -14,13 +14,14 @@ fieldnames = [
     "voltage",
     "current",
     "error",
+    "x_hat1",
 ]
 
 files = 0
 directory = os.path.join(os.curdir, "Gen_Data")
 
 output_dir = 'CSV_sourcecodePos/OurData'
-filename = f'{output_dir}/saved_datapos.csv'
+filename = f'{output_dir}/saved_dataposKmatrix.csv'
 
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -52,7 +53,7 @@ def enableLogging():
     LOGGING = True
 
 
-def save_data(data, error):
+def save_data(data, error, x_hat1):
     if not LOGGING:
         return
     global counter
@@ -71,5 +72,6 @@ def save_data(data, error):
             "voltage": data[5],
             "current": data[6],
             "error" : error,
+            "x_hat1" : x_hat1,
         }
         csv_writer.writerow(info)

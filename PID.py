@@ -5,61 +5,70 @@ from time import time
 
 class PID:
     def __init__(self): 
-        self.kp = 0.3 #Vinkelregulering
-        self.ki = 0.5
-        self.kd =  1.5
-        self.windup = 0
-        self.winduptime = 0
-        self.accWindup = []
-        self.windupLim = 2
-        self.lastIntegral = 0
-        self.lastError = 0
+        self.k1 = 109.8354 #Vinkelregulering
+        self.k2 = 2.666
         self.lastVal = 0
-        self.useWindup = False
-
-    def checkWindup(self):
-        for i in range(len(self.accWindup)):
-            if self.accWindup[i] * 0.98 > self.windup or self.accWindup[i] * 1.02 < self.windup: # Reset windup if prev windup between these vals
-                break
-            else:
-                self.accWindup = []
-                self.windup = 0
+        self.lastVel = 0
+        self.x_hat1 = 0
+        self.x_hat2 = 0
 
     def resetWindup(self):
         self.windup = 0
 
-    def regulate(self, target, currentVal, dt, dummy):
-        # Implement controller using this function
-        print("Angle:", np.rad2deg(currentVal))
-        error = target - currentVal # Proportional Calculation
 
-        derivative = dt * (self.lastVal - error) # Derivative calculation
+    def regulate(self, x1, currentVal, angleVelocity, dt, dummy):
+    # Construct the state vector (position and velocity)
+        # Calculate the error
+        error = x1 - currentVal
 
-        self.accWindup.append(self.windup)
-        if len(self.accWindup) > 10:
-            self.accWindup.pop(0)
+        # Apply the K matrix
+        K = np.array([self.k1, self.k2])
+        u = -(self.k1 * currentVal - self.k2 * -angleVelocity)/650
+        # Update the last value
+        print("error:", error)
+        self.lastVal = currentVal
+        return u, dummy
+    
+    def regulateObs(self, x1, currentVal, angleVelocity, dt, dummy):
+    # System dynamics matrices
+        a11 = 0
+        a12 = 1
+        a21 = 0
+        a22 = -8
+        b1 = 0
+        b2 = 1
+        c1 = 1.56410*4
+        c2 = 1
 
-        #PID.checkWindup(self)
-        
-        self.windup = error * dt# Integral calculation trapezoidal methode
+        # Observer gain values (design or tune these values)
+        l1 = -53 + 9j
+        l2 = -53 + 9j
 
-        dummy += self.windup
+        # Update the estimated state variables using the observer
+        x_hat1 = self.x_hat1 + dt * (a11 * self.x_hat1 + a12 * self.x_hat2 + b1 * currentVal - l1 * (c1 * self.x_hat1 - currentVal))
+        x_hat2 = self.x_hat2 + dt * (a21 * self.x_hat1 + a22 * self.x_hat2 + b2 * currentVal - l2 * (c2 * self.x_hat2 - angleVelocity))
 
-        self.lastVal = error
-        #print("Error:", error)
-        pid = self.kp * error + self.ki * dummy + self.kp * derivative
+        print("x_hat1:", self.x_hat1)
+        #print("x_hat2:", self.x_hat2)
 
-        return pid, dummy
+        # Calculate the error
+        error = x1 - x_hat1
 
-    def getIntegral(self):
-        return self.integral
+        # Apply the K matrix
+        u = -((self.k1 * error - self.k2 * -x_hat2) / 650)
+
+        # Update the estimated state variables
+        self.x_hat1 = x_hat1
+        self.x_hat2 = x_hat2
+
+        return u
+
 
     def copy(self, pid):
-        self.kp = pid.kp
-        self.ki = pid.ki
-        self.kd = pid.kd
-        self.windup = pid.windup
-        self.useWindup = pid.useWindup
-
+        self.kp = pid.k2
+        self.ki = pid.k2
     def getError(self):
         return self.lastVal
+
+    def getX_hat1(self):
+        return self.x_hat1

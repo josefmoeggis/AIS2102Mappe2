@@ -40,18 +40,19 @@ p_target = 0
 
 dummy = 0
 error = 0
+x_hat1 = 0
 
-target = np.deg2rad(360)
+target =0 #np.deg2rad(360)
 pid = PID.PID()
 def control(data, lock):
-    global m_target, p_target, target, pid, dummy, error
+    global m_target, p_target, target, pid, dummy, error, x_hat1
     while True:
         # Updates the qube - Sends and receives data
         qube.update()
 
         # Gets the logdata and writes it to the log file
         logdata = qube.getLogData(m_target, p_target)
-        save_data(logdata, error)
+        save_data(logdata, error, x_hat1)
 
         # Multithreading stuff that must happen. Dont mind it.
         with lock:
@@ -61,9 +62,10 @@ def control(data, lock):
         dt = getDT()
         
         ### Your code goes here
-        
-        setVoltage, dummy = pid.regulate(target, np.deg2rad(qube.getMotorAngle()), dt, dummy)
-        clippedVoltage = np.clip(setVoltage, -25, 25)
+        x_hat1 = pid.getX_hat1()
+
+        setVoltage = pid.regulateObs(target, np.deg2rad(qube.getMotorAngle()), qube.getMotorRPM() * 60/(2*np.pi), dt, dummy)
+        clippedVoltage = np.clip(setVoltage, -20, 20)
         error = pid.getError()
         #print("Windup", dummy)
         qube.setMotorVoltage(clippedVoltage)
