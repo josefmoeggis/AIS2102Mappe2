@@ -42,7 +42,7 @@ dummy = 0
 error = 0
 x_hat1 = 0
 
-target =0 #np.deg2rad(360)
+target = 0
 pid = PID.PID()
 def control(data, lock):
     global m_target, p_target, target, pid, dummy, error, x_hat1
